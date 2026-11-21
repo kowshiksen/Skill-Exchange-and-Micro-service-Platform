@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Skill Exchange{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Skill Exchange</h1><p class="muted">Exchange skills for free. Send a request to the owner of a skill you would like to learn.</p></div>
+  <div class="actions">
+    <a class="btn btn-outline" href="{% url 'exchanges:requests' %}">Received</a>
+    <a class="btn btn-outline" href="{% url 'exchanges:mine' %}">Sent</a>
+  </div>
+</div>
+<form method="get" class="filters">
+  <input class="form-control" type="text" name="q" value="{{ q }}" placeholder="Search skills...">
+  <select class="form-control" name="category">
+    <option value="">All categories</option>
+    {% for code, label in categories %}<option value="{{ code }}" {% if category == code %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
+  <button class="btn" type="submit">Filter</button>
+</form>
+{% if skills %}
+<div class="grid">
+  {% for sk in skills %}
+  <div class="card">
+    <h3>{{ sk.name }}</h3>
+    <div class="meta"><span class="badge badge-cat">{{ sk.get_category_display }}</span><span class="badge">{{ sk.get_level_display }}</span></div>
+    <p class="muted">by <a href="{% url 'accounts:user_profile' sk.owner.username %}">{{ sk.owner.get_full_name|default:sk.owner.username }}</a></p>
+    <p style="margin-top:10px"><a class="btn btn-sm btn-accent" href="{% url 'exchanges:add' sk.pk %}">Request Exchange</a>
+    <a class="btn btn-sm btn-outline" href="{% url 'skills:detail' sk.pk %}">Details</a></p>
+  </div>
+  {% endfor %}
+</div>
+{% else %}<div class="card empty">No skills are currently open for exchange.</div>{% endif %}
+{% endblock %}

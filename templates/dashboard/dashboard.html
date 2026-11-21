@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Welcome, {{ user.first_name|default:user.username }}!</h1>
+    <p class="muted">{{ profile.student_id }} &bull; {{ profile.get_department_display }}
+      {% if profile.average_rating %}&bull; <span class="stars">&#9733;</span> {{ profile.average_rating }}/5{% endif %}</p>
+  </div>
+  <div class="actions">
+    <a class="btn btn-outline" href="{% url 'accounts:profile' %}">My Profile</a>
+    <a class="btn btn-outline" href="{% url 'reviews:list' %}">My Reviews</a>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="num">{{ skill_count }}</div><div class="label">My skills</div></div>
+  <div class="stat"><div class="num">{{ service_count }}</div><div class="label">My services</div></div>
+  <div class="stat"><div class="num">{{ pending_received_ex }}</div><div class="label">Pending exchange requests</div></div>
+  <div class="stat"><div class="num">{{ pending_received_orders }}</div><div class="label">Pending service orders</div></div>
+  <div class="stat"><div class="num">{{ active_exchanges }}</div><div class="label">Active exchanges</div></div>
+  <div class="stat"><div class="num">{{ completed_exchanges }}</div><div class="label">Completed exchanges</div></div>
+  <div class="stat"><div class="num">{{ earned|floatformat:"-2" }}</div><div class="label">Earned (BDT)</div></div>
+  <div class="stat"><div class="num">{{ spent|floatformat:"-2" }}</div><div class="label">Spent (BDT)</div></div>
+</div>
+
+<div class="grid-2">
+  <div>
+    <div class="page-head"><h2>My Skills</h2><a class="btn btn-sm" href="{% url 'skills:mine' %}">Manage</a></div>
+    {% for sk in skills %}
+      <div class="card" style="margin-bottom:8px"><strong>{{ sk.name }}</strong> <span class="badge">{{ sk.get_level_display }}</span></div>
+    {% empty %}<div class="card empty">No skills yet. <a href="{% url 'skills:add' %}">Add one</a></div>{% endfor %}
+  </div>
+  <div>
+    <div class="page-head"><h2>My Services</h2><a class="btn btn-sm" href="{% url 'services:mine' %}">Manage</a></div>
+    {% for s in services %}
+      <div class="card" style="margin-bottom:8px"><strong>{{ s.title }}</strong> &mdash; {{ s.price|floatformat:"-2" }} BDT</div>
+    {% empty %}<div class="card empty">No services yet. <a href="{% url 'services:add' %}">Offer one</a></div>{% endfor %}
+  </div>
+</div>
+
+<div class="page-head"><h2>Exchange Requests Received</h2><a class="btn btn-sm" href="{% url 'exchanges:requests' %}">All</a></div>
+{% if received_ex %}
+<div class="table-wrap"><table>
+  <tr><th>From</th><th>Offers</th><th>Wants</th><th>Status</th><th></th></tr>
+  {% for r in received_ex %}
+  <tr><td>{{ r.requester.get_full_name|default:r.requester.username }}</td><td>{{ r.offered_skill.name }}</td><td>{{ r.requested_skill.name }}</td>
+      <td><span class="badge badge-{{ r.status }}">{{ r.get_status_display }}</span></td>
+      <td><a class="btn btn-sm btn-outline" href="{% url 'exchanges:detail' r.pk %}">View</a></td></tr>
+  {% endfor %}
+</table></div>
+{% else %}<div class="card empty">No requests yet.</div>{% endif %}
+
+<div class="page-head"><h2>Exchange Requests Sent</h2><a class="btn btn-sm" href="{% url 'exchanges:mine' %}">All</a></div>
+{% if sent_ex %}
+<div class="table-wrap"><table>
+  <tr><th>To</th><th>I offer</th><th>I want</th><th>Status</th><th></th></tr>
+  {% for r in sent_ex %}
+  <tr><td>{{ r.receiver.get_full_name|default:r.receiver.username }}</td><td>{{ r.offered_skill.name }}</td><td>{{ r.requested_skill.name }}</td>
+      <td><span class="badge badge-{{ r.status }}">{{ r.get_status_display }}</span></td>
+      <td><a class="btn btn-sm btn-outline" href="{% url 'exchanges:detail' r.pk %}">View</a></td></tr>
+  {% endfor %}
+</table></div>
+{% else %}<div class="card empty">You have not sent any requests yet.</div>{% endif %}
+
+<div class="page-head"><h2>Service Orders Received</h2><a class="btn btn-sm" href="{% url 'services:mine' %}">All</a></div>
+{% if received_orders %}
+<div class="table-wrap"><table>
+  <tr><th>Service</th><th>Buyer</th><th>Price</th><th>Status</th></tr>
+  {% for o in received_orders %}
+  <tr><td>{{ o.service.title }}</td><td>{{ o.buyer.get_full_name|default:o.buyer.username }}</td><td>{{ o.price|floatformat:"-2" }} BDT</td>
+      <td><span class="badge badge-{{ o.status }}">{{ o.get_status_display }}</span></td></tr>
+  {% endfor %}
+</table></div>
+{% else %}<div class="card empty">No orders yet.</div>{% endif %}
+
+<div class="page-head"><h2>Service Orders Sent</h2><a class="btn btn-sm" href="{% url 'services:mine' %}">All</a></div>
+{% if sent_orders %}
+<div class="table-wrap"><table>
+  <tr><th>Service</th><th>Provider</th><th>Price</th><th>Status</th></tr>
+  {% for o in sent_orders %}
+  <tr><td>{{ o.service.title }}</td><td>{{ o.provider.get_full_name|default:o.provider.username }}</td><td>{{ o.price|floatformat:"-2" }} BDT</td>
+      <td><span class="badge badge-{{ o.status }}">{{ o.get_status_display }}</span></td></tr>
+  {% endfor %}
+</table></div>
+{% else %}<div class="card empty">You have not placed any orders yet.</div>{% endif %}
+
+<div class="page-head"><h2>Recent Transactions</h2><a class="btn btn-sm" href="{% url 'payments:history' %}">All</a></div>
+{% if recent_transactions %}
+<div class="table-wrap"><table>
+  <tr><th>Txn ID</th><th>Service</th><th>Amount</th><th>Type</th><th>Date</th></tr>
+  {% for t in recent_transactions %}
+  <tr><td>{{ t.transaction_id }}</td><td>{{ t.order.service.title }}</td><td>{{ t.amount|floatformat:"-2" }} BDT</td>
+      <td>{% if t.payer == user %}Paid{% else %}Received{% endif %}</td><td>{{ t.created_at|date:"d M Y" }}</td></tr>
+  {% endfor %}
+</table></div>
+{% else %}<div class="card empty">No transactions yet.</div>{% endif %}
+{% endblock %}

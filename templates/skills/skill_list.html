@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Skills{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>All Skills</h1>
+  <a class="btn" href="{% url 'skills:add' %}">+ Add Skill</a>
+</div>
+<form method="get" class="filters">
+  <input class="form-control" type="text" name="q" value="{{ q }}" placeholder="Search skills...">
+  <select class="form-control" name="category">
+    <option value="">All categories</option>
+    {% for code, label in categories %}<option value="{{ code }}" {% if category == code %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
+  <select class="form-control" name="level">
+    <option value="">All levels</option>
+    {% for code, label in levels %}<option value="{{ code }}" {% if level == code %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
+  <button class="btn" type="submit">Filter</button>
+</form>
+{% if skills %}
+<div class="grid">
+  {% for sk in skills %}
+  <div class="card">
+    <h3><a href="{% url 'skills:detail' sk.pk %}">{{ sk.name }}</a></h3>
+    <div class="meta"><span class="badge badge-cat">{{ sk.get_category_display }}</span><span class="badge">{{ sk.get_level_display }}</span></div>
+    <p class="muted">by <a href="{% url 'accounts:user_profile' sk.owner.username %}">{{ sk.owner.get_full_name|default:sk.owner.username }}</a> &bull; {{ sk.owner.profile.department }}</p>
+    <p style="margin-top:10px"><a class="btn btn-sm btn-outline" href="{% url 'skills:detail' sk.pk %}">Details</a></p>
+  </div>
+  {% endfor %}
+</div>
+{% else %}<div class="card empty">No skills found.</div>{% endif %}
+{% endblock %}

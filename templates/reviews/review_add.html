@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Write Review{% endblock %}
+{% block content %}
+<div class="card form-card">
+  <h1>Write a Review</h1>
+  <div class="detail-box">
+    For: <strong>{{ target_user.get_full_name|default:target_user.username }}</strong><br>
+    {{ subject }}
+  </div>
+  <form method="post">
+    {% csrf_token %}
+    {% include 'partials/form_fields.html' %}
+    <button class="btn" type="submit">Submit Review</button>
+    <a class="btn btn-outline" href="javascript:history.back()">Cancel</a>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Request Exchange{% endblock %}
+{% block content %}
+<div class="card form-card">
+  <h1>Request Skill Exchange</h1>
+  <div class="detail-box">
+    You want to learn: <strong>{{ skill.name }}</strong> ({{ skill.get_level_display }})<br>
+    Owner: {{ skill.owner.get_full_name|default:skill.owner.username }}
+  </div>
+  <form method="post">
+    {% csrf_token %}
+    {% include 'partials/form_fields.html' %}
+    <button class="btn btn-accent" type="submit">Send Request</button>
+    <a class="btn btn-outline" href="{% url 'exchanges:list' %}">Cancel</a>
+  </form>
+</div>
+{% endblock %}

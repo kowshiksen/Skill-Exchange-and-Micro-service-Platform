@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}{{ profile_user.get_full_name|default:profile_user.username }}{% endblock %}
+{% block content %}
+<div class="card profile-head">
+  {% if profile.photo %}
+    <img class="avatar" src="{{ profile.photo.url }}" alt="photo">
+  {% else %}
+    <div class="avatar avatar-ph">{{ profile_user.first_name|default:profile_user.username|slice:":1"|upper }}</div>
+  {% endif %}
+  <div style="flex:1">
+    <h1>{{ profile_user.get_full_name|default:profile_user.username }}</h1>
+    <p class="muted">ID: {{ profile.student_id }} &bull; {{ profile.get_department_display }}</p>
+    {% if profile.phone %}<p class="muted">Phone: {{ profile.phone }}</p>{% endif %}
+    <p class="muted">Email: {{ profile_user.email|default:"-" }}</p>
+    <p>
+      {% if profile.average_rating %}
+        <span class="stars">&#9733;</span> <strong>{{ profile.average_rating }}</strong>/5
+        (<a href="{% url 'reviews:user_list' profile_user.username %}">{{ profile.review_count }} review{{ profile.review_count|pluralize }}</a>)
+      {% else %}<span class="muted">No reviews yet</span>{% endif %}
+    </p>
+  </div>
+  {% if is_me %}<a class="btn" href="{% url 'accounts:edit_profile' %}">Edit Profile</a>{% endif %}
+</div>
+
+{% if profile.bio %}<h2>About</h2><div class="card" style="white-space:pre-line">{{ profile.bio }}</div>{% endif %}
+
+<h2>Skills</h2>
+{% if skills %}
+<div class="grid">
+  {% for sk in skills %}
+  <div class="card">
+    <h3><a href="{% url 'skills:detail' sk.pk %}">{{ sk.name }}</a></h3>
+    <div class="meta"><span class="badge badge-cat">{{ sk.get_category_display }}</span><span class="badge">{{ sk.get_level_display }}</span>
+      {% if sk.open_for_exchange %}<span class="badge badge-accepted">Open for exchange</span>{% endif %}</div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}<div class="card empty">No skills added yet.</div>{% endif %}
+
+<h2>Services</h2>
+{% if services %}
+<div class="grid">
+  {% for s in services %}
+  <div class="card">
+    <h3><a href="{% url 'services:detail' s.pk %}">{{ s.title }}</a></h3>
+    <div class="price">{{ s.price|floatformat:"-2" }} BDT</div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}<div class="card empty">No active services.</div>{% endif %}
+
+{% if reviews %}
+<h2>Recent Reviews</h2>
+{% for r in reviews %}
+<div class="card" style="margin-bottom:10px">
+  <span class="stars">{{ r.stars }}</span> &mdash; <strong>{{ r.reviewer.get_full_name|default:r.reviewer.username }}</strong>
+  <p>{{ r.comment|default:"(no comment)" }}</p>
+</div>
+{% endfor %}
+{% endif %}
+{% endblock %}

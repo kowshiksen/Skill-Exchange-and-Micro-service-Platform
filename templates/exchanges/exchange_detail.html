@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Exchange #{{ ex.pk }}{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="page-head">
+    <h1>Exchange #{{ ex.pk }}</h1>
+    <span class="badge badge-{{ ex.status }}">{{ ex.get_status_display }}</span>
+  </div>
+  <div class="exchange-vs">
+    <div class="detail-box"><strong>{{ ex.requester.get_full_name|default:ex.requester.username }}</strong> teaches<br>{{ ex.offered_skill.name }} ({{ ex.offered_skill.get_level_display }})</div>
+    <div class="swap">&#8646;</div>
+    <div class="detail-box"><strong>{{ ex.receiver.get_full_name|default:ex.receiver.username }}</strong> teaches<br>{{ ex.requested_skill.name }} ({{ ex.requested_skill.get_level_display }})</div>
+  </div>
+  {% if ex.message %}<h3>Message</h3><div class="detail-box">{{ ex.message }}</div>{% endif %}
+  <p class="muted">Sent: {{ ex.created_at|date:"d M Y, h:i A" }} &bull; Other person:
+    <a href="{% url 'accounts:user_profile' other_user.username %}">{{ other_user.get_full_name|default:other_user.username }}</a></p>
+
+  <div class="actions" style="margin-top:14px">
+    {% if is_receiver and ex.status == 'pending' %}
+      <form method="post" action="{% url 'exchanges:action' ex.pk 'accept' %}" class="inline-form">{% csrf_token %}<button class="btn btn-success">Accept</button></form>
+      <form method="post" action="{% url 'exchanges:action' ex.pk 'reject' %}" class="inline-form" data-confirm="Are you sure you want to reject this request?">{% csrf_token %}<button class="btn btn-danger">Reject</button></form>
+    {% endif %}
+    {% if is_requester and ex.status == 'pending' %}
+      <form method="post" action="{% url 'exchanges:action' ex.pk 'cancel' %}" class="inline-form" data-confirm="Are you sure you want to cancel this request?">{% csrf_token %}<button class="btn btn-danger">Cancel Request</button></form>
+    {% endif %}
+    {% if ex.status == 'accepted' %}
+      <form method="post" action="{% url 'exchanges:action' ex.pk 'complete' %}" class="inline-form" data-confirm="Mark this exchange as completed?">{% csrf_token %}<button class="btn btn-success">Mark as Completed</button></form>
+    {% endif %}
+    {% if can_review %}<a class="btn btn-accent" href="{% url 'reviews:add_exchange' ex.pk %}">Write Review</a>{% endif %}
+    <a class="btn btn-outline" href="{% url 'exchanges:mine' %}">Back</a>
+  </div>
+  {% if ex.status == 'accepted' %}<p class="muted" style="margin-top:10px">Contact: {{ other_user.email|default:"-" }}{% if other_user.profile.phone %} &bull; {{ other_user.profile.phone }}{% endif %}</p>{% endif %}
+</div>
+{% endblock %}

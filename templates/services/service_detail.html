@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}{{ service.title }}{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>{{ service.title }}</h1>
+  <div class="meta">
+    <span class="badge badge-cat">{{ service.get_category_display }}</span>
+    <span class="muted">Delivery: {{ service.delivery_days }} day{{ service.delivery_days|pluralize }}</span>
+    {% if not service.is_active %}<span class="badge badge-cancelled">Inactive</span>{% endif %}
+  </div>
+  <div class="price">{{ service.price|floatformat:"-2" }} BDT</div>
+  <p class="muted">Provider: <a href="{% url 'accounts:user_profile' service.provider.username %}">{{ service.provider.get_full_name|default:service.provider.username }}</a>
+    ({{ service.provider.profile.get_department_display }})
+    {% if service.provider.profile.average_rating %}&bull; <span class="stars">&#9733;</span> {{ service.provider.profile.average_rating }}/5{% endif %}</p>
+  <div class="detail-box">{{ service.description }}</div>
+  <div class="actions">
+    {% if not is_owner %}<a class="btn btn-accent" href="{% url 'services:order' service.pk %}">Order this service</a>{% endif %}
+    {% if is_owner %}
+      <a class="btn" href="{% url 'services:edit' service.pk %}">Edit</a>
+      <form method="post" action="{% url 'services:delete' service.pk %}" class="inline-form" data-confirm="Are you sure you want to delete this service?">
+        {% csrf_token %}<button class="btn btn-danger" type="submit">Delete</button>
+      </form>
+    {% endif %}
+    <a class="btn btn-outline" href="{% url 'services:list' %}">Back</a>
+  </div>
+</div>
+
+<h2>Reviews for this service</h2>
+{% for r in reviews %}
+<div class="card" style="margin-bottom:10px">
+  <span class="stars">{{ r.stars }}</span> &mdash; <strong>{{ r.reviewer.get_full_name|default:r.reviewer.username }}</strong>
+  <span class="muted">{{ r.created_at|date:"d M Y" }}</span>
+  <p>{{ r.comment|default:"(no comment)" }}</p>
+</div>
+{% empty %}<div class="card empty">No reviews yet.</div>{% endfor %}
+{% endblock %}

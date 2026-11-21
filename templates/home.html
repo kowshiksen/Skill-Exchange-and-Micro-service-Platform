@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Learn. Teach. Earn &mdash; inside PCIU.</h1>
+  <p>Exchange skills with fellow students for free, or offer and hire small paid services within the Port City International University community.</p>
+  {% if user.is_authenticated %}
+    <a class="btn" href="{% url 'exchanges:list' %}">Exchange Skills</a>
+    <a class="btn" href="{% url 'services:list' %}">Browse Services</a>
+  {% else %}
+    <a class="btn" href="{% url 'accounts:register' %}">Get Started</a>
+    <a class="btn" href="{% url 'accounts:login' %}">Login</a>
+  {% endif %}
+</section>
+
+<div class="stats">
+  <div class="stat"><div class="num">{{ total_students }}</div><div class="label">Students</div></div>
+  <div class="stat"><div class="num">{{ total_skills }}</div><div class="label">Skills listed</div></div>
+  <div class="stat"><div class="num">{{ total_services }}</div><div class="label">Active services</div></div>
+  <div class="stat"><div class="num">{{ total_completed }}</div><div class="label">Completed jobs &amp; exchanges</div></div>
+</div>
+
+<h2>Latest Services</h2>
+{% if latest_services %}
+<div class="grid">
+  {% for s in latest_services %}
+  <div class="card">
+    <h3>{{ s.title }}</h3>
+    <div class="meta"><span class="badge badge-cat">{{ s.get_category_display }}</span><span class="muted">by {{ s.provider.get_full_name|default:s.provider.username }}</span></div>
+    <div class="price">{{ s.price|floatformat:"-2" }} BDT</div>
+    {% if user.is_authenticated %}<p style="margin-top:10px"><a class="btn btn-sm" href="{% url 'services:detail' s.pk %}">View</a></p>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}<div class="card empty">No services have been listed yet.</div>{% endif %}
+
+<h2>Skills open for exchange</h2>
+{% if latest_skills %}
+<div class="grid">
+  {% for sk in latest_skills %}
+  <div class="card">
+    <h3>{{ sk.name }}</h3>
+    <div class="meta"><span class="badge badge-cat">{{ sk.get_category_display }}</span><span class="badge">{{ sk.get_level_display }}</span></div>
+    <p class="muted">by {{ sk.owner.get_full_name|default:sk.owner.username }}</p>
+    {% if user.is_authenticated %}<p style="margin-top:10px"><a class="btn btn-sm btn-outline" href="{% url 'skills:detail' sk.pk %}">View</a></p>{% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}<div class="card empty">No skills have been listed yet.</div>{% endif %}
+{% endblock %}

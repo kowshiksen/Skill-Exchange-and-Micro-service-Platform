@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Payment{% endblock %}
+{% block content %}
+<div class="card form-card">
+  <h1>Demo Payment</h1>
+  <div class="alert alert-info">This is a <strong>demo</strong> payment. No real money will be charged.</div>
+  <div class="detail-box">
+    Order #{{ order.pk }}: <strong>{{ order.service.title }}</strong><br>
+    Provider: {{ order.provider.get_full_name|default:order.provider.username }}<br>
+    Amount: <span class="price">{{ order.price|floatformat:"-2" }} BDT</span>
+  </div>
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="method">Payment method</label>
+      <select class="form-control" name="method" id="method" required>
+        {% for code, label in methods %}<option value="{{ code }}">{{ label }}</option>{% endfor %}
+      </select>
+    </div>
+    <button class="btn btn-success" type="submit">Confirm Payment</button>
+    <a class="btn btn-outline" href="{% url 'services:mine' %}">Cancel</a>
+  </form>
+</div>
+{% endblock %}

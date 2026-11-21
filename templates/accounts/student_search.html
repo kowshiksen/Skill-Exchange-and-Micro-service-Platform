@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Students{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Find Students</h1></div>
+<form method="get" class="filters">
+  <input class="form-control" type="text" name="q" value="{{ q }}" placeholder="Search by name, Student ID or skill">
+  <select class="form-control" name="department">
+    <option value="">All departments</option>
+    {% for code, label in departments %}<option value="{{ code }}" {% if dept == code %}selected{% endif %}>{{ label }}</option>{% endfor %}
+  </select>
+  <button class="btn" type="submit">Search</button>
+</form>
+{% if profiles %}
+<div class="grid">
+  {% for p in profiles %}
+  <div class="card">
+    <div class="person">
+      {% if p.photo %}<img class="avatar avatar-sm" src="{{ p.photo.url }}" alt="">{% else %}<div class="avatar avatar-sm avatar-ph">{{ p.user.first_name|default:p.user.username|slice:":1"|upper }}</div>{% endif %}
+      <div>
+        <h3><a href="{% url 'accounts:user_profile' p.user.username %}">{{ p.user.get_full_name|default:p.user.username }}</a></h3>
+        <span class="muted">{{ p.student_id }} &bull; {{ p.department }}</span>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}<div class="card empty">No students found.</div>{% endif %}
+{% endblock %}

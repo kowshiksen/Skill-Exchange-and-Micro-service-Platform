@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}{{ skill.name }}{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>{{ skill.name }}</h1>
+  <div class="meta">
+    <span class="badge badge-cat">{{ skill.get_category_display }}</span>
+    <span class="badge">{{ skill.get_level_display }}</span>
+    {% if skill.open_for_exchange %}<span class="badge badge-accepted">Open for exchange</span>{% endif %}
+  </div>
+  <p class="muted">Owner: <a href="{% url 'accounts:user_profile' skill.owner.username %}">{{ skill.owner.get_full_name|default:skill.owner.username }}</a>
+    ({{ skill.owner.profile.get_department_display }})</p>
+  <div class="detail-box">{{ skill.description|default:"No description provided." }}</div>
+  <div class="actions">
+    {% if can_exchange %}<a class="btn btn-accent" href="{% url 'exchanges:add' skill.pk %}">Request Skill Exchange</a>{% endif %}
+    {% if is_owner %}
+      <a class="btn" href="{% url 'skills:edit' skill.pk %}">Edit</a>
+      <form method="post" action="{% url 'skills:delete' skill.pk %}" class="inline-form" data-confirm="Are you sure you want to delete this skill?">
+        {% csrf_token %}<button class="btn btn-danger" type="submit">Delete</button>
+      </form>
+    {% endif %}
+    <a class="btn btn-outline" href="{% url 'skills:list' %}">Back</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}My Skills{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>My Skills</h1>
+  <a class="btn" href="{% url 'skills:add' %}">+ Add Skill</a>
+</div>
+{% if skills %}
+<div class="table-wrap">
+<table>
+  <tr><th>Skill</th><th>Category</th><th>Level</th><th>Exchange</th><th>Actions</th></tr>
+  {% for sk in skills %}
+  <tr>
+    <td><a href="{% url 'skills:detail' sk.pk %}">{{ sk.name }}</a></td>
+    <td>{{ sk.get_category_display }}</td>
+    <td>{{ sk.get_level_display }}</td>
+    <td>{% if sk.open_for_exchange %}<span class="badge badge-accepted">Open</span>{% else %}<span class="badge">Closed</span>{% endif %}</td>
+    <td class="actions">
+      <a class="btn btn-sm" href="{% url 'skills:edit' sk.pk %}">Edit</a>
+      <form method="post" action="{% url 'skills:delete' sk.pk %}" class="inline-form" data-confirm="Are you sure you want to delete this skill?">
+        {% csrf_token %}<button class="btn btn-sm btn-danger" type="submit">Delete</button>
+      </form>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+</div>
+{% else %}<div class="card empty">You have not added any skills yet. <a href="{% url 'skills:add' %}">Add your first skill</a>.</div>{% endif %}
+{% endblock %}

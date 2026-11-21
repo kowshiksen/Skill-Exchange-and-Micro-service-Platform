@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Reviews{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Reviews for {{ target.get_full_name|default:target.username }}</h1>
+    <p>{% if profile.average_rating %}<span class="stars">&#9733;</span> <strong>{{ profile.average_rating }}</strong>/5 from {{ profile.review_count }} review{{ profile.review_count|pluralize }}{% else %}<span class="muted">No reviews yet</span>{% endif %}</p>
+  </div>
+  <a class="btn btn-outline" href="{% url 'accounts:user_profile' target.username %}">View profile</a>
+</div>
+
+<h2>Received</h2>
+{% for r in received %}
+<div class="card" style="margin-bottom:10px">
+  <span class="stars">{{ r.stars }}</span> &mdash; <strong>{{ r.reviewer.get_full_name|default:r.reviewer.username }}</strong>
+  <span class="muted">&bull; {% if r.order %}Service: {{ r.order.service.title }}{% else %}Skill exchange{% endif %} &bull; {{ r.created_at|date:"d M Y" }}</span>
+  <p>{{ r.comment|default:"(no comment)" }}</p>
+</div>
+{% empty %}<div class="card empty">No reviews yet.</div>{% endfor %}
+
+{% if is_me %}
+<h2>Given by me</h2>
+{% for r in given %}
+<div class="card" style="margin-bottom:10px">
+  <span class="stars">{{ r.stars }}</span> &rarr; <strong>{{ r.reviewee.get_full_name|default:r.reviewee.username }}</strong>
+  <span class="muted">&bull; {{ r.created_at|date:"d M Y" }}</span>
+  <p>{{ r.comment|default:"(no comment)" }}</p>
+</div>
+{% empty %}<div class="card empty">You have not written any reviews yet.</div>{% endfor %}
+{% endif %}
+{% endblock %}

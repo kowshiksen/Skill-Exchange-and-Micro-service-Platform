@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Order Service{% endblock %}
+{% block content %}
+<div class="card form-card">
+  <h1>Order Service</h1>
+  <div class="detail-box">
+    <strong>{{ service.title }}</strong><br>
+    Provider: {{ service.provider.get_full_name|default:service.provider.username }}<br>
+    Price: <strong>{{ service.price|floatformat:"-2" }} BDT</strong> &bull; Delivery: {{ service.delivery_days }} day{{ service.delivery_days|pluralize }}
+  </div>
+  <p class="muted" style="margin-bottom:12px">Once the provider accepts your order, you can complete the (demo) payment.</p>
+  <form method="post">
+    {% csrf_token %}
+    {% include 'partials/form_fields.html' %}
+    <button class="btn btn-accent" type="submit">Send Order Request</button>
+    <a class="btn btn-outline" href="{% url 'services:detail' service.pk %}">Cancel</a>
+  </form>
+</div>
+{% endblock %}

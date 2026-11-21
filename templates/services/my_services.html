@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}My Services{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>My Services &amp; Orders</h1>
+  <a class="btn" href="{% url 'services:add' %}">+ Offer a Service</a>
+</div>
+
+<h2>My service listings</h2>
+{% if services %}
+<div class="table-wrap"><table>
+  <tr><th>Title</th><th>Category</th><th>Price</th><th>Status</th><th>Actions</th></tr>
+  {% for s in services %}
+  <tr>
+    <td><a href="{% url 'services:detail' s.pk %}">{{ s.title }}</a></td>
+    <td>{{ s.get_category_display }}</td>
+    <td>{{ s.price|floatformat:"-2" }} BDT</td>
+    <td>{% if s.is_active %}<span class="badge badge-completed">Active</span>{% else %}<span class="badge">Inactive</span>{% endif %}</td>
+    <td class="actions">
+      <a class="btn btn-sm" href="{% url 'services:edit' s.pk %}">Edit</a>
+      <form method="post" action="{% url 'services:delete' s.pk %}" class="inline-form" data-confirm="Are you sure you want to delete this?">{% csrf_token %}<button class="btn btn-sm btn-danger">Delete</button></form>
+    </td>
+  </tr>
+  {% endfor %}
+</table></div>
+{% else %}<div class="card empty">You have not offered any services yet.</div>{% endif %}
+
+<h2>Orders I received (as provider)</h2>
+{% if received_orders %}
+<div class="table-wrap"><table>
+  <tr><th>#</th><th>Service</th><th>Buyer</th><th>Requirement</th><th>Price</th><th>Status</th><th>Actions</th></tr>
+  {% for o in received_orders %}
+  <tr>
+    <td>{{ o.pk }}</td>
+    <td>{{ o.service.title }}</td>
+    <td><a href="{% url 'accounts:user_profile' o.buyer.username %}">{{ o.buyer.get_full_name|default:o.buyer.username }}</a></td>
+    <td>{{ o.message|truncatechars:60 }}</td>
+    <td>{{ o.price|floatformat:"-2" }} BDT</td>
+    <td><span class="badge badge-{{ o.status }}">{{ o.get_status_display }}</span></td>
+    <td class="actions">
+      {% if o.status == 'pending' %}
+        <form method="post" action="{% url 'services:order_action' o.pk 'accept' %}" class="inline-form">{% csrf_token %}<button class="btn btn-sm btn-success">Accept</button></form>
+        <form method="post" action="{% url 'services:order_action' o.pk 'reject' %}" class="inline-form" data-confirm="Are you sure you want to reject this request?">{% csrf_token %}<button class="btn btn-sm btn-danger">Reject</button></form>
+      {% elif o.status == 'paid' %}
+        <form method="post" action="{% url 'services:order_action' o.pk 'complete' %}" class="inline-form" data-confirm="Mark this work as delivered and completed?">{% csrf_token %}<button class="btn btn-sm btn-success">Mark Completed</button></form>
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table></div>
+{% else %}<div class="card empty">No orders received yet.</div>{% endif %}
+
+<h2>Orders I placed (as buyer)</h2>
+{% if sent_orders %}
+<div class="table-wrap"><table>
+  <tr><th>#</th><th>Service</th><th>Provider</th><th>Price</th><th>Status</th><th>Actions</th></tr>
+  {% for o in sent_orders %}
+  <tr>
+    <td>{{ o.pk }}</td>
+    <td><a href="{% url 'services:detail' o.service.pk %}">{{ o.service.title }}</a></td>
+    <td>{{ o.provider.get_full_name|default:o.provider.username }}</td>
+    <td>{{ o.price|floatformat:"-2" }} BDT</td>
+    <td><span class="badge badge-{{ o.status }}">{{ o.get_status_display }}</span></td>
+    <td class="actions">
+      {% if o.status == 'accepted' %}<a class="btn btn-sm btn-accent" href="{% url 'payments:pay' o.pk %}">Pay Now</a>{% endif %}
+      {% if o.status == 'pending' or o.status == 'accepted' %}
+        <form method="post" action="{% url 'services:order_action' o.pk 'cancel' %}" class="inline-form" data-confirm="Are you sure you want to cancel this order?">{% csrf_token %}<button class="btn btn-sm btn-danger">Cancel</button></form>
+      {% endif %}
+      {% if o.status == 'completed' and not o.review %}<a class="btn btn-sm" href="{% url 'reviews:add_service' o.pk %}">Write Review</a>{% endif %}
+      {% if o.review %}<span class="stars">{{ o.review.stars }}</span>{% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table></div>
+{% else %}<div class="card empty">You have not placed any orders yet.</div>{% endif %}
+{% endblock %}

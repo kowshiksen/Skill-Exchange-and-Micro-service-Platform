@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}My Exchange Requests{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>My Sent Requests</h1>
+  <a class="btn btn-outline" href="{% url 'exchanges:requests' %}">Received requests</a>
+</div>
+{% if requests %}
+<div class="table-wrap">
+<table>
+  <tr><th>To</th><th>I offer</th><th>I want to learn</th><th>Status</th><th>Date</th><th></th></tr>
+  {% for r in requests %}
+  <tr>
+    <td><a href="{% url 'accounts:user_profile' r.receiver.username %}">{{ r.receiver.get_full_name|default:r.receiver.username }}</a></td>
+    <td>{{ r.offered_skill.name }}</td>
+    <td>{{ r.requested_skill.name }}</td>
+    <td><span class="badge badge-{{ r.status }}">{{ r.get_status_display }}</span></td>
+    <td>{{ r.created_at|date:"d M Y" }}</td>
+    <td><a class="btn btn-sm btn-outline" href="{% url 'exchanges:detail' r.pk %}">View</a></td>
+  </tr>
+  {% endfor %}
+</table>
+</div>
+{% else %}<div class="card empty">You have not sent any requests yet. <a href="{% url 'exchanges:list' %}">Browse skills</a>.</div>{% endif %}
+{% endblock %}

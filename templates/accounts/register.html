@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<div class="card form-card">
+  <h1>Create Account</h1>
+  <p class="muted" style="margin-bottom:16px">Register as a PCIU student.</p>
+  <form method="post">
+    {% csrf_token %}
+    {% include 'partials/form_fields.html' %}
+    <button class="btn" type="submit">Register</button>
+    <a href="{% url 'accounts:login' %}">Already have an account?</a>
+  </form>
+</div>
+{% endblock %}

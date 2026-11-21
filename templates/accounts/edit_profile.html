@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Edit Profile{% endblock %}
+{% block content %}
+<div class="card form-card">
+  <h1>Edit Profile</h1>
+  <form method="post" enctype="multipart/form-data" style="margin-top:14px">
+    {% csrf_token %}
+    {% include 'partials/form_fields.html' with form=user_form %}
+    {% include 'partials/form_fields.html' with form=profile_form %}
+    <button class="btn" type="submit">Save changes</button>
+    <a class="btn btn-outline" href="{% url 'accounts:profile' %}">Cancel</a>
+  </form>
+</div>
+{% endblock %}
